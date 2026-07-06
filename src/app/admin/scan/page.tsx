@@ -53,7 +53,7 @@ export default function ScanPage() {
     try {
       await scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: 220, aspectRatio: 1 },
+        { fps: 10 },
         async (decodedText) => {
           const match = decodedText.match(/^member:(.+)$/);
           if (!match) return;
@@ -117,10 +117,14 @@ export default function ScanPage() {
 
       {!target && (
         <div className="flex flex-col gap-3">
-          <div
-            id={SCANNER_ID}
-            className="w-full aspect-square border border-border rounded-2xl overflow-hidden"
-          />
+          <div className="relative w-full aspect-square border border-border rounded-2xl overflow-hidden">
+            <div id={SCANNER_ID} className="w-full h-full [&_video]:!w-full [&_video]:!h-full [&_video]:object-cover" />
+            {scanning && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="w-[60%] aspect-square border-4 border-white/90 rounded-lg" />
+              </div>
+            )}
+          </div>
           {!scanning && (
             <button
               onClick={startScanning}
