@@ -9,7 +9,7 @@ set search_path = public
 as $$
 begin
   if new.email !~* '@gmail\.com$' then
-    raise exception '仅允许使用 @gmail.com 邮箱注册';
+    raise exception 'Only @gmail.com emails are allowed to sign up';
   end if;
   return new;
 end;

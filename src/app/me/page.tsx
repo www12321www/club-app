@@ -38,7 +38,7 @@ export default function MePage() {
   }, [member]);
 
   if (loading || !member) {
-    return <p className="text-center text-foreground/60">加载中...</p>;
+    return <p className="text-center text-foreground/60">Loading...</p>;
   }
 
   return (
@@ -47,11 +47,11 @@ export default function MePage() {
         <QRCodeSVG value={`member:${member.id}`} size={180} />
         <p className="font-semibold text-lg">{member.name}</p>
         <p className="text-3xl font-bold text-accent">{member.points}</p>
-        <p className="text-sm text-foreground/60">积分</p>
+        <p className="text-sm text-foreground/60">Points</p>
       </div>
 
       <div>
-        <h2 className="font-semibold mb-3">成就</h2>
+        <h2 className="font-semibold mb-3">Achievements</h2>
         <ul className="flex flex-col gap-2">
           {achievements.map((a) => {
             const unlocked = unlockedIds.has(a.id);
@@ -71,13 +71,13 @@ export default function MePage() {
                   )}
                 </div>
                 <span className="text-sm text-primary font-medium">
-                  {unlocked ? "已解锁" : `需 ${a.threshold} 分`}
+                  {unlocked ? "Unlocked" : `Needs ${a.threshold} pts`}
                 </span>
               </li>
             );
           })}
           {achievements.length === 0 && (
-            <p className="text-sm text-foreground/60">暂无成就</p>
+            <p className="text-sm text-foreground/60">No achievements yet</p>
           )}
         </ul>
       </div>

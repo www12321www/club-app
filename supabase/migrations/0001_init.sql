@@ -116,11 +116,11 @@ begin
   select * into v_member from members where id = p_member_id for update;
 
   if v_reward.stock <= 0 then
-    raise exception '礼品库存不足';
+    raise exception 'This reward is out of stock';
   end if;
 
   if v_member.points < v_reward.cost then
-    raise exception '积分不足';
+    raise exception 'Not enough points';
   end if;
 
   update rewards set stock = stock - 1 where id = p_reward_id;

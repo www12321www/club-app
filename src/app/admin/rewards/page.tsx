@@ -63,24 +63,24 @@ export default function AdminRewardsPage() {
   }
 
   if (loading || !operator) {
-    return <p className="text-center text-foreground/60">加载中...</p>;
+    return <p className="text-center text-foreground/60">Loading...</p>;
   }
 
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-3">
-        <h2 className="font-semibold">礼品管理</h2>
+        <h2 className="font-semibold">Manage Rewards</h2>
         <form onSubmit={addReward} className="flex flex-col gap-2 border border-border rounded-xl p-4">
           <input
             required
-            placeholder="礼品名称"
+            placeholder="Reward name"
             value={rewardForm.name}
             onChange={(e) => setRewardForm({ ...rewardForm, name: e.target.value })}
             className="border border-border rounded-xl px-3 py-2 bg-background"
           />
           <div className="flex gap-2">
             <label className="flex-1 min-w-0 text-sm text-foreground/60">
-              所需积分
+              Cost (points)
               <input
                 type="number"
                 value={rewardForm.cost}
@@ -89,7 +89,7 @@ export default function AdminRewardsPage() {
               />
             </label>
             <label className="flex-1 min-w-0 text-sm text-foreground/60">
-              库存
+              Stock
               <input
                 type="number"
                 value={rewardForm.stock}
@@ -98,30 +98,30 @@ export default function AdminRewardsPage() {
               />
             </label>
           </div>
-          <button className="bg-accent text-white rounded-xl py-2 font-medium">添加礼品</button>
+          <button className="bg-accent text-white rounded-xl py-2 font-medium">Add Reward</button>
         </form>
         <ul className="flex flex-col gap-2">
           {rewards.map((r) => (
             <li key={r.id} className="border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-              <span>{r.name} · {r.cost} 分 · 库存 {r.stock}</span>
-              <button onClick={() => deleteReward(r.id)} className="text-sm text-red-600">删除</button>
+              <span>{r.name} · {r.cost} pts · Stock {r.stock}</span>
+              <button onClick={() => deleteReward(r.id)} className="text-sm text-red-600">Delete</button>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-semibold">成就管理</h2>
+        <h2 className="font-semibold">Manage Achievements</h2>
         <form onSubmit={addAchievement} className="flex flex-col gap-2 border border-border rounded-xl p-4">
           <input
             required
-            placeholder="成就名称"
+            placeholder="Achievement name"
             value={achievementForm.name}
             onChange={(e) => setAchievementForm({ ...achievementForm, name: e.target.value })}
             className="border border-border rounded-xl px-3 py-2 bg-background"
           />
           <label className="text-sm text-foreground/60">
-            达成所需累计积分
+            Points required to unlock
             <input
               type="number"
               value={achievementForm.threshold}
@@ -131,13 +131,13 @@ export default function AdminRewardsPage() {
               className="mt-1 w-full border border-border rounded-xl px-3 py-2 bg-background"
             />
           </label>
-          <button className="bg-accent text-white rounded-xl py-2 font-medium">添加成就</button>
+          <button className="bg-accent text-white rounded-xl py-2 font-medium">Add Achievement</button>
         </form>
         <ul className="flex flex-col gap-2">
           {achievements.map((a) => (
             <li key={a.id} className="border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-              <span>{a.name} · 需 {a.threshold} 分</span>
-              <button onClick={() => deleteAchievement(a.id)} className="text-sm text-red-600">删除</button>
+              <span>{a.name} · Needs {a.threshold} pts</span>
+              <button onClick={() => deleteAchievement(a.id)} className="text-sm text-red-600">Delete</button>
             </li>
           ))}
         </ul>

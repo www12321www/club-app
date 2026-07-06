@@ -15,12 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "社团会员积分系统",
-  description: "扫码积分、成就解锁、礼品兑换",
+  title: "Club Membership Points",
+  description: "Scan to earn points, unlock achievements, redeem rewards",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "社团积分",
+    title: "Club Points",
   },
 };
 

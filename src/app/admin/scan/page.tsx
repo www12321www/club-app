@@ -68,7 +68,7 @@ export default function ScanPage() {
             .single();
 
           if (!data) {
-            setScanError("未找到该会员");
+            setScanError("Member not found");
             return;
           }
           setTarget(data);
@@ -77,7 +77,7 @@ export default function ScanPage() {
       );
       setScanning(true);
     } catch {
-      setScanError("无法启动摄像头，请检查权限");
+      setScanError("Could not start the camera, please check permissions");
     }
   }
 
@@ -97,23 +97,23 @@ export default function ScanPage() {
     setSubmitting(false);
 
     if (error) {
-      setMessage(`失败：${error.message}`);
+      setMessage(`Failed: ${error.message}`);
       return;
     }
 
-    setMessage(`已为 ${target.name} 增加 ${points} 分`);
+    setMessage(`Added ${points} pts to ${target.name}`);
     setTarget(null);
     setReason("");
     setPoints(1);
   }
 
   if (loading || !operator) {
-    return <p className="text-center text-foreground/60">加载中...</p>;
+    return <p className="text-center text-foreground/60">Loading...</p>;
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">扫码录入积分</h1>
+      <h1 className="text-xl font-semibold">Scan to Add Points</h1>
 
       {!target && (
         <div className="flex flex-col gap-3">
@@ -126,7 +126,7 @@ export default function ScanPage() {
               onClick={startScanning}
               className="bg-accent text-white rounded-xl py-2 font-medium"
             >
-              开始扫码
+              Start Scanning
             </button>
           )}
           {scanError && <p className="text-sm text-red-600">{scanError}</p>}
@@ -139,10 +139,10 @@ export default function ScanPage() {
           className="flex flex-col gap-3 border border-border rounded-2xl p-4"
         >
           <p className="font-medium">
-            会员：{target.name}（当前 {target.points} 分）
+            Member: {target.name} (currently {target.points} pts)
           </p>
           <label className="text-sm text-foreground/60">
-            本次加分
+            Points to add
             <input
               type="number"
               value={points}
@@ -151,12 +151,12 @@ export default function ScanPage() {
             />
           </label>
           <label className="text-sm text-foreground/60">
-            原因
+            Reason
             <input
               required
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="例如：参加社团活动"
+              placeholder="e.g. Attended club event"
               className="mt-1 w-full border border-border rounded-xl px-3 py-2 bg-background"
             />
           </label>
@@ -166,14 +166,14 @@ export default function ScanPage() {
               disabled={submitting}
               className="flex-1 bg-accent text-white rounded-xl py-2 font-medium disabled:opacity-50"
             >
-              {submitting ? "提交中..." : "确认加分"}
+              {submitting ? "Submitting..." : "Confirm"}
             </button>
             <button
               type="button"
               onClick={() => setTarget(null)}
               className="flex-1 border border-border rounded-xl py-2 font-medium"
             >
-              取消
+              Cancel
             </button>
           </div>
         </form>

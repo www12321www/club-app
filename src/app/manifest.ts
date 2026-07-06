@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "社团会员积分系统",
-    short_name: "社团积分",
-    description: "扫码积分、成就解锁、礼品兑换",
+    name: "Club Membership Points",
+    short_name: "Club Points",
+    description: "Scan to earn points, unlock achievements, redeem rewards",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

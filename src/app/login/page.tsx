@@ -23,7 +23,7 @@ export default function LoginPage() {
       mode === "signup" &&
       !email.toLowerCase().endsWith(`@${ALLOWED_EMAIL_DOMAIN}`)
     ) {
-      setError(`仅允许使用 @${ALLOWED_EMAIL_DOMAIN} 邮箱注册`);
+      setError(`Only @${ALLOWED_EMAIL_DOMAIN} emails are allowed to sign up`);
       return;
     }
 
@@ -51,14 +51,14 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col gap-6 pt-10">
       <h1 className="text-xl font-semibold">
-        {mode === "signin" ? "登录" : "注册"}社团账号
+        {mode === "signin" ? "Sign In" : "Sign Up"} to Your Club Account
       </h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {mode === "signup" && (
           <input
             required
-            placeholder="姓名"
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="border border-border rounded-xl px-3 py-2 bg-background"
@@ -67,7 +67,7 @@ export default function LoginPage() {
         <input
           required
           type="email"
-          placeholder="邮箱"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="border border-border rounded-xl px-3 py-2 bg-background"
@@ -75,7 +75,7 @@ export default function LoginPage() {
         <input
           required
           type="password"
-          placeholder="密码"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="border border-border rounded-xl px-3 py-2 bg-background"
@@ -88,7 +88,7 @@ export default function LoginPage() {
           disabled={loading}
           className="bg-accent text-white rounded-xl py-2 font-medium disabled:opacity-50"
         >
-          {loading ? "处理中..." : mode === "signin" ? "登录" : "注册"}
+          {loading ? "Processing..." : mode === "signin" ? "Sign In" : "Sign Up"}
         </button>
       </form>
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         className="text-sm text-foreground/60"
       >
-        {mode === "signin" ? "没有账号？去注册" : "已有账号？去登录"}
+        {mode === "signin" ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
       </button>
     </div>
   );

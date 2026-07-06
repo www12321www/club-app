@@ -42,24 +42,24 @@ export default function RewardsPage() {
     setRedeemingId(null);
 
     if (error) {
-      setMessage(`兑换失败：${error.message}`);
+      setMessage(`Redemption failed: ${error.message}`);
       return;
     }
 
-    setMessage(`已成功兑换「${reward.name}」`);
+    setMessage(`Successfully redeemed "${reward.name}"`);
     loadRewards();
   }
 
   if (loading || !member) {
-    return <p className="text-center text-foreground/60">加载中...</p>;
+    return <p className="text-center text-foreground/60">Loading...</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">礼品兑换</h1>
+        <h1 className="text-xl font-semibold">Redeem Rewards</h1>
         <p className="text-sm text-foreground/60">
-          我的积分：<span className="text-accent font-semibold">{member.points}</span>
+          My points: <span className="text-accent font-semibold">{member.points}</span>
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export default function RewardsPage() {
                   <p className="text-sm text-foreground/60">{r.description}</p>
                 )}
                 <p className="text-sm text-foreground/60">
-                  {r.cost} 分 · 库存 {r.stock}
+                  {r.cost} pts · Stock {r.stock}
                 </p>
               </div>
               <button
@@ -87,13 +87,13 @@ export default function RewardsPage() {
                 disabled={!canAfford || redeemingId === r.id}
                 className="bg-accent text-white rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-40"
               >
-                {redeemingId === r.id ? "兑换中..." : "兑换"}
+                {redeemingId === r.id ? "Redeeming..." : "Redeem"}
               </button>
             </li>
           );
         })}
         {rewards.length === 0 && (
-          <p className="text-sm text-foreground/60">暂无礼品</p>
+          <p className="text-sm text-foreground/60">No rewards yet</p>
         )}
       </ul>
     </div>
