@@ -14,6 +14,9 @@ export default function AdminRewardsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   const [rewardForm, setRewardForm] = useState({ name: "", cost: 10, stock: 10 });
+  const [rewardImage, setRewardImage] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [rewardError, setRewardError] = useState<string | null>(null);
   const [achievementForm, setAchievementForm] = useState({ name: "", threshold: 10 });
 
   useEffect(() => {
@@ -40,8 +43,38 @@ export default function AdminRewardsPage() {
 
   async function addReward(e: React.FormEvent) {
     e.preventDefault();
-    await supabase.from("rewards").insert(rewardForm);
+    setRewardError(null);
+
+    let image_url: string | null = null;
+
+    if (rewardImage) {
+      setUploadingImage(true);
+      const path = `${Date.now()}-${rewardImage.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("reward-images")
+        .upload(path, rewardImage);
+      setUploadingImage(false);
+
+      if (uploadError) {
+        setRewardError(uploadError.message);
+        return;
+      }
+
+      image_url = supabase.storage.from("reward-images").getPublicUrl(path)
+        .data.publicUrl;
+    }
+
+    const { error } = await supabase
+      .from("rewards")
+      .insert({ ...rewardForm, image_url });
+
+    if (error) {
+      setRewardError(error.message);
+      return;
+    }
+
     setRewardForm({ name: "", cost: 10, stock: 10 });
+    setRewardImage(null);
     loadAll();
   }
 
@@ -98,13 +131,38 @@ export default function AdminRewardsPage() {
               />
             </label>
           </div>
-          <button className="bg-accent text-white rounded-xl py-2 font-medium">Add Reward</button>
+          <label className="text-sm text-foreground/60">
+            Image (optional)
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setRewardImage(e.target.files?.[0] ?? null)}
+              className="mt-1 w-full border border-border rounded-xl px-3 py-2 bg-background text-sm"
+            />
+          </label>
+          <button
+            disabled={uploadingImage}
+            className="bg-accent text-white rounded-xl py-2 font-medium disabled:opacity-50"
+          >
+            {uploadingImage ? "Uploading image..." : "Add Reward"}
+          </button>
+          {rewardError && <p className="text-sm text-red-600">{rewardError}</p>}
         </form>
         <ul className="flex flex-col gap-2">
           {rewards.map((r) => (
-            <li key={r.id} className="border border-border rounded-xl px-4 py-3 flex items-center justify-between">
-              <span>{r.name} · {r.cost} pts · Stock {r.stock}</span>
-              <button onClick={() => deleteReward(r.id)} className="text-sm text-red-600">Delete</button>
+            <li key={r.id} className="border border-border rounded-xl px-4 py-3 flex items-center gap-3 justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                {r.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={r.image_url}
+                    alt={r.name}
+                    className="w-12 h-12 rounded-lg object-cover border border-border shrink-0"
+                  />
+                )}
+                <span className="truncate">{r.name} · {r.cost} pts · Stock {r.stock}</span>
+              </div>
+              <button onClick={() => deleteReward(r.id)} className="text-sm text-red-600 shrink-0">Delete</button>
             </li>
           ))}
         </ul>
