@@ -53,7 +53,7 @@ export default function ScanPage() {
     try {
       await scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 280, height: 180 } },
+        { fps: 10, qrbox: 220 },
         async (decodedText) => {
           const match = decodedText.match(/^member:(.+)$/);
           if (!match) return;
