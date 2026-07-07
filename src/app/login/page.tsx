@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [studentId, setStudentId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function LoginPage() {
         : await supabase.auth.signUp({
             email,
             password,
-            options: { data: { name } },
+            options: { data: { name, student_id: studentId } },
           });
 
     setLoading(false);
@@ -56,13 +57,22 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {mode === "signup" && (
-          <input
-            required
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-border rounded-xl px-3 py-2 bg-background"
-          />
+          <>
+            <input
+              required
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="border border-border rounded-xl px-3 py-2 bg-background"
+            />
+            <input
+              required
+              placeholder="Kent ID"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              className="border border-border rounded-xl px-3 py-2 bg-background"
+            />
+          </>
         )}
         <input
           required

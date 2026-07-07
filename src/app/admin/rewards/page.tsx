@@ -12,6 +12,9 @@ export default function AdminRewardsPage() {
 
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [redemptions, setRedemptions] = useState<
+    { id: string; created_at: string; status: string; members: { name: string } | null; rewards: { name: string } | null }[]
+  >([]);
 
   const [rewardForm, setRewardForm] = useState({ name: "", cost: 10, stock: 10 });
   const [rewardImage, setRewardImage] = useState<File | null>(null);
@@ -26,15 +29,22 @@ export default function AdminRewardsPage() {
   }, [loading, operator, router]);
 
   async function loadAll() {
-    const [{ data: r }, { data: a }] = await Promise.all([
+    const [{ data: r }, { data: a }, { data: red }] = await Promise.all([
       supabase.from("rewards").select("*").order("cost", { ascending: true }),
       supabase
         .from("achievements")
         .select("*")
         .order("threshold", { ascending: true }),
+      supabase
+        .from("redemptions")
+        .select("id, created_at, status, members(name), rewards(name)")
+        .order("created_at", { ascending: false }),
     ]);
     setRewards(r ?? []);
     setAchievements(a ?? []);
+    setRedemptions(
+      (red as unknown as typeof redemptions | null) ?? []
+    );
   }
 
   useEffect(() => {
@@ -198,6 +208,31 @@ export default function AdminRewardsPage() {
               <button onClick={() => deleteAchievement(a.id)} className="text-sm text-red-600">Delete</button>
             </li>
           ))}
+        </ul>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-semibold">Redemptions</h2>
+        <ul className="flex flex-col gap-2">
+          {redemptions.map((red) => (
+            <li
+              key={red.id}
+              className="border border-border rounded-xl px-4 py-3 flex items-center justify-between"
+            >
+              <div>
+                <p className="font-medium">
+                  {red.members?.name ?? "Unknown"} · {red.rewards?.name ?? "Unknown"}
+                </p>
+                <p className="text-sm text-foreground/60">
+                  {new Date(red.created_at).toLocaleString()}
+                </p>
+              </div>
+              <span className="text-sm text-primary font-medium">{red.status}</span>
+            </li>
+          ))}
+          {redemptions.length === 0 && (
+            <p className="text-sm text-foreground/60">No redemptions yet</p>
+          )}
         </ul>
       </section>
     </div>
