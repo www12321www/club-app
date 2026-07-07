@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
 import type { PointLog } from "@/lib/types";
@@ -15,6 +15,17 @@ export default function MePage() {
   const router = useRouter();
   const [pointLogs, setPointLogs] = useState<PointLogWithEvent[]>([]);
   const [showAllHistory, setShowAllHistory] = useState(false);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  function downloadQrCode() {
+    const canvas = qrCanvasRef.current;
+    if (!canvas || !member) return;
+
+    const link = document.createElement("a");
+    link.download = `${member.name}-qr-code.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
 
   useEffect(() => {
     if (!loading && !member) {
@@ -48,7 +59,7 @@ export default function MePage() {
         </Link>
       </div>
 
-      <div className="flex flex-col items-center gap-3 border border-border rounded-2xl p-6">
+      <div className="relative flex flex-col items-center gap-3 border border-border rounded-2xl p-6">
         {member.membership_tier === "committee" && (
           <span className="bg-primary text-white text-sm font-bold tracking-wide px-4 py-1.5 rounded-full shadow mb-3">
             COMMITTEE
@@ -59,10 +70,31 @@ export default function MePage() {
             PAID MEMBER
           </span>
         )}
-        <QRCodeSVG value={`member:${member.id}`} size={180} />
+        <QRCodeCanvas ref={qrCanvasRef} value={`member:${member.id}`} size={180} />
         <p className="font-semibold text-lg">{member.name}</p>
         <p className="text-3xl font-bold text-accent">{member.points}</p>
         <p className="text-sm text-foreground/60">Points</p>
+
+        <button
+          onClick={downloadQrCode}
+          aria-label="Download QR code"
+          className="absolute bottom-3 right-3 w-9 h-9 flex items-center justify-center rounded-full border border-border text-foreground/60 hover:text-accent hover:border-accent"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 3v12" />
+            <path d="M7 10l5 5 5-5" />
+            <path d="M5 21h14" />
+          </svg>
+        </button>
       </div>
 
       <div>
