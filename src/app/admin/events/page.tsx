@@ -33,6 +33,7 @@ export default function AdminEventsPage() {
   const [events, setEvents] = useState<ClubEvent[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !isAdminUser(operator)) {
@@ -73,6 +74,7 @@ export default function AdminEventsPage() {
 
   async function saveEvent(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     const payload = {
       name: form.name,
       description: form.description,
@@ -85,10 +87,13 @@ export default function AdminEventsPage() {
         form.allowGuests && form.maxGuestsPerPerson > 0 ? form.maxGuestsPerPerson : null,
     };
 
-    if (editingId) {
-      await supabase.from("events").update(payload).eq("id", editingId);
-    } else {
-      await supabase.from("events").insert(payload);
+    const { error } = editingId
+      ? await supabase.from("events").update(payload).eq("id", editingId)
+      : await supabase.from("events").insert(payload);
+
+    if (error) {
+      setError(error.message);
+      return;
     }
 
     setEditingId(null);
@@ -97,7 +102,12 @@ export default function AdminEventsPage() {
   }
 
   async function deleteEvent(id: string) {
-    await supabase.from("events").delete().eq("id", id);
+    setError(null);
+    const { error } = await supabase.from("events").delete().eq("id", id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
     if (editingId === id) cancelEdit();
     loadEvents();
   }
@@ -200,6 +210,7 @@ export default function AdminEventsPage() {
               </div>
             </div>
           )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-2">
             <button className="flex-1 bg-accent text-white rounded-xl py-2 font-medium">
               {editingId ? "Save Changes" : "Add Event"}
