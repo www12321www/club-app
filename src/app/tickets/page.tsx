@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
-import html2canvas from "html2canvas";
+import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
 import type { Ticket } from "@/lib/types";
@@ -32,6 +31,117 @@ const CATEGORY_LABELS: Record<Category, string> = {
   used: "Used",
 };
 
+const COLORS = {
+  background: "#faf9f7",
+  foreground: "#2b2824",
+  muted: "#8a8580",
+  accent: "#d4714a",
+  primary: "#1d9e75",
+  border: "#e8e4de",
+};
+
+function drawTicketImage(
+  qrCanvas: HTMLCanvasElement,
+  ticket: TicketWithEvent,
+  holderName: string,
+  category: Category
+): HTMLCanvasElement {
+  const scale = 2;
+  const width = 360 * scale;
+  const badgeColor = category === "valid" ? COLORS.primary : COLORS.border;
+  const badgeTextColor = category === "valid" ? "#ffffff" : COLORS.muted;
+  const subtitleLine =
+    (ticket.events?.event_time ? new Date(ticket.events.event_time).toLocaleString() : "") +
+    (ticket.events?.location ? ` · ${ticket.events.location}` : "");
+
+  const topHeight = 190 * scale;
+  const qrSize = 150 * scale;
+  const bottomHeight = qrSize + 80 * scale;
+  const height = topHeight + bottomHeight;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+
+  function roundedRect(x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // card background
+  roundedRect(0, 0, width, height, 20 * scale);
+  ctx.fillStyle = COLORS.background;
+  ctx.fill();
+  ctx.strokeStyle = COLORS.border;
+  ctx.lineWidth = 1 * scale;
+  ctx.stroke();
+
+  // status badge
+  ctx.font = `${12 * scale}px sans-serif`;
+  const badgeText = CATEGORY_LABELS[category].toUpperCase();
+  const badgeTextWidth = ctx.measureText(badgeText).width;
+  const badgePaddingX = 12 * scale;
+  const badgeWidth = badgeTextWidth + badgePaddingX * 2;
+  const badgeHeight = 24 * scale;
+  const badgeX = width / 2 - badgeWidth / 2;
+  const badgeY = 20 * scale;
+  roundedRect(badgeX, badgeY, badgeWidth, badgeHeight, badgeHeight / 2);
+  ctx.fillStyle = badgeColor;
+  ctx.fill();
+  ctx.fillStyle = badgeTextColor;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(badgeText, width / 2, badgeY + badgeHeight / 2 + 1);
+
+  // event name
+  ctx.fillStyle = COLORS.foreground;
+  ctx.font = `600 ${18 * scale}px sans-serif`;
+  ctx.fillText(ticket.events?.name ?? "", width / 2, badgeY + badgeHeight + 26 * scale);
+
+  // holder name
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = `${14 * scale}px sans-serif`;
+  ctx.fillText(holderName, width / 2, badgeY + badgeHeight + 52 * scale);
+
+  // date / location
+  ctx.fillText(subtitleLine, width / 2, badgeY + badgeHeight + 74 * scale);
+
+  // dashed divider with notches
+  const dividerY = topHeight;
+  ctx.save();
+  ctx.strokeStyle = COLORS.border;
+  ctx.lineWidth = 1 * scale;
+  ctx.setLineDash([6 * scale, 6 * scale]);
+  ctx.beginPath();
+  ctx.moveTo(0, dividerY);
+  ctx.lineTo(width, dividerY);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.beginPath();
+  ctx.arc(0, dividerY, 12 * scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(width, dividerY, 12 * scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // QR code
+  const qrX = width / 2 - qrSize / 2;
+  const qrY = dividerY + 30 * scale;
+  ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+
+  return canvas;
+}
+
 function TicketCard({
   ticket,
   holderName,
@@ -41,40 +151,16 @@ function TicketCard({
   holderName: string;
   category: Category;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const qrRef = useRef<HTMLCanvasElement>(null);
   const [sharing, setSharing] = useState(false);
 
-  async function shareAsText() {
-    const text = `${ticket.events?.name ?? "Event"} ticket for ${holderName}${
-      ticket.events?.event_time
-        ? ` — ${new Date(ticket.events.event_time).toLocaleString()}`
-        : ""
-    }`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: ticket.events?.name ?? "Ticket", text });
-      } catch {
-        // user cancelled the share sheet, nothing to do
-      }
-      return;
-    }
-
-    await navigator.clipboard.writeText(text);
-  }
-
   async function share() {
-    const node = cardRef.current;
-    if (!node || sharing) return;
+    const qrCanvas = qrRef.current;
+    if (!qrCanvas || sharing) return;
     setSharing(true);
 
     try {
-      const canvas = await html2canvas(node, {
-        backgroundColor: "#faf9f7",
-        ignoreElements: (el) => el.classList.contains("no-capture"),
-        scale: 2,
-      });
-
+      const canvas = drawTicketImage(qrCanvas, ticket, holderName, category);
       const fileName = `${ticket.events?.name ?? "ticket"}.png`;
 
       const blob: Blob | null = await new Promise((resolve) =>
@@ -97,8 +183,7 @@ function TicketCard({
         link.click();
       }
     } catch (err) {
-      console.error("Failed to capture ticket image, falling back to text share", err);
-      await shareAsText();
+      console.error("Failed to generate ticket image", err);
     } finally {
       setSharing(false);
     }
@@ -106,7 +191,6 @@ function TicketCard({
 
   return (
     <div
-      ref={cardRef}
       className={`snap-center shrink-0 w-full relative rounded-2xl border border-border overflow-hidden bg-background ${
         category !== "valid" ? "opacity-50" : ""
       }`}
@@ -133,11 +217,11 @@ function TicketCard({
         <span className="absolute -left-3 top-0 -translate-y-1/2 w-6 h-6 rounded-full bg-background border border-border" />
         <span className="absolute -right-3 top-0 -translate-y-1/2 w-6 h-6 rounded-full bg-background border border-border" />
         <div className="p-5 flex flex-col items-center gap-3">
-          <QRCodeSVG value={`ticket:${ticket.id}`} size={150} />
+          <QRCodeCanvas ref={qrRef} value={`ticket:${ticket.id}`} size={150} />
           <button
             onClick={share}
             disabled={sharing}
-            className="no-capture text-sm text-accent font-medium border border-border rounded-xl px-4 py-1.5 disabled:opacity-50"
+            className="text-sm text-accent font-medium border border-border rounded-xl px-4 py-1.5 disabled:opacity-50"
           >
             {sharing ? "Preparing..." : "Share"}
           </button>
