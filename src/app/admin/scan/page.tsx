@@ -312,15 +312,28 @@ export default function ScanPage() {
           <p className="font-medium">
             Member: {target.name} (currently {target.points} pts)
           </p>
-          <label className="text-sm text-foreground/60">
+          <div className="text-sm text-foreground/60">
             Points to add
-            <input
-              type="number"
-              value={points}
-              onChange={(e) => setPoints(Number(e.target.value))}
-              className="mt-1 w-full border border-border rounded-xl px-3 py-2 bg-background"
-            />
-          </label>
+            <div className="mt-1 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setPoints((p) => p - 1)}
+                className="w-10 h-10 shrink-0 border border-border rounded-xl text-lg font-semibold"
+              >
+                &minus;
+              </button>
+              <span className="flex-1 text-center text-lg font-semibold text-foreground">
+                {points}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPoints((p) => p + 1)}
+                className="w-10 h-10 shrink-0 border border-border rounded-xl text-lg font-semibold"
+              >
+                +
+              </button>
+            </div>
+          </div>
           <label className="text-sm text-foreground/60">
             Reason
             <input
