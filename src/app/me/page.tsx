@@ -46,7 +46,14 @@ export default function MePage() {
       </div>
 
       <div className="flex flex-col items-center gap-3 border border-border rounded-2xl p-6">
-        <QRCodeSVG value={`member:${member.id}`} size={180} />
+        <div className="relative">
+          <QRCodeSVG value={`member:${member.id}`} size={180} />
+          {member.is_paid && (
+            <span className="absolute -top-2 -right-2 bg-accent text-white text-xs font-semibold px-2 py-1 rounded-full shadow">
+              PAID
+            </span>
+          )}
+        </div>
         <p className="font-semibold text-lg">{member.name}</p>
         <p className="text-3xl font-bold text-accent">{member.points}</p>
         <p className="text-sm text-foreground/60">Points</p>
