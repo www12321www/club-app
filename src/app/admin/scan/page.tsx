@@ -278,7 +278,7 @@ export default function ScanPage() {
             <div id={SCANNER_ID} className="w-full h-full [&_video]:!w-full [&_video]:!h-full [&_video]:object-cover" />
             {scanning && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                <div className="w-[60%] aspect-square border-4 border-white/90 rounded-lg" />
+                <div className="w-[60%] aspect-square border-4 border-white/90 rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]" />
               </div>
             )}
           </div>
