@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
-import { isAdminUser, type ClubEvent, type Member, type PointTemplate } from "@/lib/types";
+import { isAdminUser, type ClubEvent, type Member, type PointTemplate, type Ticket } from "@/lib/types";
 
 const SCANNER_ID = "qr-scanner-region";
 
@@ -31,6 +31,7 @@ export default function ScanPage() {
 
   const [events, setEvents] = useState<ClubEvent[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<string>("");
+  const [memberTicket, setMemberTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
     if (!loading && !isAdminUser(operator)) {
@@ -126,6 +127,18 @@ export default function ScanPage() {
             return;
           }
           setTarget(data);
+
+          if (selectedEventId) {
+            const { data: ticket } = await supabase
+              .from("tickets")
+              .select("*")
+              .eq("member_id", data.id)
+              .eq("event_id", selectedEventId)
+              .maybeSingle();
+            setMemberTicket(ticket ?? null);
+          } else {
+            setMemberTicket(null);
+          }
         },
         () => {}
       );
@@ -149,15 +162,27 @@ export default function ScanPage() {
       event_id: selectedEventId || null,
     });
 
-    setSubmitting(false);
-
     if (error) {
+      setSubmitting(false);
       setMessage(`Failed: ${error.message}`);
       return;
     }
 
-    setMessage(`Added ${points} pts to ${target.name}`);
+    if (memberTicket && memberTicket.status === "valid") {
+      await supabase
+        .from("tickets")
+        .update({ status: "used" })
+        .eq("id", memberTicket.id);
+    }
+
+    setSubmitting(false);
+    setMessage(
+      memberTicket && memberTicket.status === "valid"
+        ? `Added ${points} pts to ${target.name} and marked their ticket as used`
+        : `Added ${points} pts to ${target.name}`
+    );
     setTarget(null);
+    setMemberTicket(null);
     if (!selectedTemplateId) {
       setReason("");
       setPoints(1);
@@ -312,6 +337,23 @@ export default function ScanPage() {
           <p className="font-medium">
             Member: {target.name} (currently {target.points} pts)
           </p>
+          {selectedEventId && (
+            <p
+              className={`text-sm font-medium ${
+                memberTicket
+                  ? memberTicket.status === "valid"
+                    ? "text-primary"
+                    : "text-red-600"
+                  : "text-foreground/60"
+              }`}
+            >
+              {memberTicket
+                ? memberTicket.status === "valid"
+                  ? "Has a ticket for this event — will be marked used on confirm"
+                  : "Ticket for this event already used"
+                : "No ticket for this event"}
+            </p>
+          )}
           <div className="text-sm text-foreground/60">
             Points to add
             <div className="mt-1 flex items-center gap-3">
@@ -354,7 +396,10 @@ export default function ScanPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTarget(null)}
+              onClick={() => {
+                setTarget(null);
+                setMemberTicket(null);
+              }}
               className="flex-1 border border-border rounded-xl py-2 font-medium"
             >
               Cancel
