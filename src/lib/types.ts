@@ -67,6 +67,14 @@ export type Redemption = {
   created_at: string;
 };
 
+export type Ticket = {
+  id: string;
+  event_id: string;
+  member_id: string;
+  status: "valid" | "used";
+  created_at: string;
+};
+
 export function isAdminUser(member: Member | null | undefined): boolean {
   return !!member && (member.role === "admin" || member.membership_tier === "committee");
 }
