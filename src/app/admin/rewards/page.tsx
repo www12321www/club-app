@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
 import type { Reward } from "@/lib/types";
@@ -92,6 +93,9 @@ export default function AdminRewardsPage() {
 
   return (
     <div className="flex flex-col gap-10">
+      <Link href="/admin" className="text-sm text-foreground/60 hover:text-accent">
+        &larr; Back to Admin
+      </Link>
       <section className="flex flex-col gap-3">
         <h1 className="text-xl font-semibold">Manage Rewards</h1>
         <form onSubmit={addReward} className="flex flex-col gap-2 border border-border rounded-xl p-4">

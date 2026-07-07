@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
 import type { Achievement } from "@/lib/types";
@@ -48,7 +49,11 @@ export default function AdminAchievementsPage() {
   }
 
   return (
-    <section className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
+      <Link href="/admin" className="text-sm text-foreground/60 hover:text-accent">
+        &larr; Back to Admin
+      </Link>
+      <section className="flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Manage Achievements</h1>
       <form onSubmit={addAchievement} className="flex flex-col gap-2 border border-border rounded-xl p-4">
         <input
@@ -82,6 +87,7 @@ export default function AdminAchievementsPage() {
           <p className="text-sm text-foreground/60">No achievements yet</p>
         )}
       </ul>
-    </section>
+      </section>
+    </div>
   );
 }

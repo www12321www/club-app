@@ -5,6 +5,7 @@ export type Member = {
   role: "member" | "admin";
   points: number;
   avatar_url: string | null;
+  is_paid: boolean;
   created_at: string;
 };
 

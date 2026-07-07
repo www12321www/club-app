@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
@@ -35,6 +36,15 @@ export default function MePage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <div className="flex justify-end">
+        <Link
+          href="/settings"
+          className="text-sm text-foreground/60 hover:text-accent"
+        >
+          Settings
+        </Link>
+      </div>
+
       <div className="flex flex-col items-center gap-3 border border-border rounded-2xl p-6">
         <QRCodeSVG value={`member:${member.id}`} size={180} />
         <p className="font-semibold text-lg">{member.name}</p>
