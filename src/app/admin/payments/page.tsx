@@ -19,42 +19,58 @@ type TicketRow = {
   events: { name: string; price: number } | null;
 };
 
-type Booking = {
+type Submission = {
   key: string;
-  primary: TicketRow;
+  status: PaymentStatus;
+  memberName: string;
+  eventName: string;
+  price: number;
   guestCount: number;
+  screenshotUrls: string[];
+  createdAt: string;
   allIds: string[];
 };
 
-function groupIntoBookings(rows: TicketRow[]): Booking[] {
+// Groups by (event, member, status) so a later "add guest" submission shows up
+// as its own reviewable item instead of being hidden behind an already
+// approved/rejected primary ticket.
+function groupIntoSubmissions(rows: TicketRow[]): Submission[] {
   const groups = new Map<string, TicketRow[]>();
   for (const row of rows) {
-    const key = `${row.event_id}-${row.member_id}`;
+    if (!row.payment_screenshot_urls || row.payment_screenshot_urls.length === 0) continue;
+    const key = `${row.event_id}-${row.member_id}-${row.payment_status}`;
     const existing = groups.get(key) ?? [];
     existing.push(row);
     groups.set(key, existing);
   }
 
-  const bookings: Booking[] = [];
+  const submissions: Submission[] = [];
   for (const [key, rows] of groups) {
-    const primary = rows.find((r) => !r.guest_name);
-    if (!primary || !primary.payment_screenshot_urls) continue;
-    bookings.push({
+    const first = rows[0];
+    submissions.push({
       key,
-      primary,
+      status: first.payment_status,
+      memberName: first.members?.name ?? "Unknown",
+      eventName: first.events?.name ?? "Unknown",
+      price: first.events?.price ?? 0,
       guestCount: rows.filter((r) => r.guest_name).length,
+      screenshotUrls: first.payment_screenshot_urls ?? [],
+      createdAt: rows.reduce(
+        (latest, r) => (r.created_at > latest ? r.created_at : latest),
+        first.created_at
+      ),
       allIds: rows.map((r) => r.id),
     });
   }
-  return bookings.sort(
-    (a, b) => new Date(b.primary.created_at).getTime() - new Date(a.primary.created_at).getTime()
+  return submissions.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
 
 export default function AdminPaymentsPage() {
   const { member: operator, loading } = useMember();
   const router = useRouter();
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
@@ -63,7 +79,7 @@ export default function AdminPaymentsPage() {
     }
   }, [loading, operator, router]);
 
-  async function loadBookings() {
+  async function loadSubmissions() {
     const { data } = await supabase
       .from("tickets")
       .select(
@@ -72,17 +88,17 @@ export default function AdminPaymentsPage() {
       .order("created_at", { ascending: false });
 
     const rows = (data as unknown as TicketRow[]) ?? [];
-    const grouped = groupIntoBookings(rows);
-    setBookings(showAll ? grouped : grouped.filter((b) => b.primary.payment_status === "pending"));
+    const grouped = groupIntoSubmissions(rows);
+    setSubmissions(showAll ? grouped : grouped.filter((s) => s.status === "pending"));
   }
 
   useEffect(() => {
-    if (isAdminUser(operator)) loadBookings();
+    if (isAdminUser(operator)) loadSubmissions();
   }, [operator, showAll]);
 
-  async function setStatus(booking: Booking, status: "approved" | "rejected") {
-    await supabase.from("tickets").update({ payment_status: status }).in("id", booking.allIds);
-    loadBookings();
+  async function setStatus(submission: Submission, status: "approved" | "rejected") {
+    await supabase.from("tickets").update({ payment_status: status }).in("id", submission.allIds);
+    loadSubmissions();
   }
 
   if (loading || !operator) {
@@ -102,15 +118,14 @@ export default function AdminPaymentsPage() {
       </div>
 
       <ul className="flex flex-col gap-3">
-        {bookings.map((b) => {
-          const totalGuests = b.guestCount;
-          const price = b.primary.events?.price ?? 0;
-          const total = price * (totalGuests + 1);
+        {submissions.map((s) => {
+          const heads = s.guestCount > 0 ? s.guestCount : 1;
+          const total = s.price * heads;
           return (
-            <li key={b.key} className="border border-border rounded-xl p-4 flex flex-col gap-3">
-              {b.primary.payment_screenshot_urls && b.primary.payment_screenshot_urls.length > 0 && (
+            <li key={s.key} className="border border-border rounded-xl p-4 flex flex-col gap-3">
+              {s.screenshotUrls.length > 0 && (
                 <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                  {b.primary.payment_screenshot_urls.map((url, i) => (
+                  {s.screenshotUrls.map((url, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       key={i}
@@ -123,37 +138,35 @@ export default function AdminPaymentsPage() {
               )}
               <div className="text-sm">
                 <p className="font-medium">
-                  {b.primary.members?.name}
-                  {totalGuests > 0 ? ` (${totalGuests} guest${totalGuests > 1 ? "s" : ""})` : ""}
+                  {s.memberName}
+                  {s.guestCount > 0 ? ` (${s.guestCount} guest${s.guestCount > 1 ? "s" : ""})` : ""}
                 </p>
                 <p className="text-foreground/60">
-                  {b.primary.events?.name} · £{total.toFixed(2)} total
+                  {s.eventName} · £{total.toFixed(2)} total
                 </p>
-                <p className="text-foreground/60">
-                  {new Date(b.primary.created_at).toLocaleString()}
-                </p>
+                <p className="text-foreground/60">{new Date(s.createdAt).toLocaleString()}</p>
                 <p
                   className={`font-medium ${
-                    b.primary.payment_status === "approved"
+                    s.status === "approved"
                       ? "text-primary"
-                      : b.primary.payment_status === "rejected"
+                      : s.status === "rejected"
                         ? "text-red-600"
                         : "text-accent"
                   }`}
                 >
-                  {b.primary.payment_status.toUpperCase()}
+                  {s.status.toUpperCase()}
                 </p>
               </div>
-              {b.primary.payment_status === "pending" && (
+              {s.status === "pending" && (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setStatus(b, "approved")}
+                    onClick={() => setStatus(s, "approved")}
                     className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-medium"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => setStatus(b, "rejected")}
+                    onClick={() => setStatus(s, "rejected")}
                     className="flex-1 border border-border rounded-xl py-2 text-sm font-medium text-red-600"
                   >
                     Reject
@@ -163,7 +176,7 @@ export default function AdminPaymentsPage() {
             </li>
           );
         })}
-        {bookings.length === 0 && (
+        {submissions.length === 0 && (
           <p className="text-sm text-foreground/60">No payments to review</p>
         )}
       </ul>
