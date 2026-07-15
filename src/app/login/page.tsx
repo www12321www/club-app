@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-const ALLOWED_EMAIL_DOMAIN = "gmail.com";
+
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -20,13 +20,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
 
-    if (
-      mode === "signup" &&
-      !email.toLowerCase().endsWith(`@${ALLOWED_EMAIL_DOMAIN}`)
-    ) {
-      setError(`Only @${ALLOWED_EMAIL_DOMAIN} emails are allowed to sign up`);
-      return;
-    }
+
 
     setLoading(true);
 
