@@ -32,9 +32,8 @@ export default function NavBar() {
   return (
     <nav className="sticky top-0 z-10 border-b border-white/70 bg-background/85 shadow-sm shadow-black/5 backdrop-blur-xl">
       <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 py-3">
-        <Link href="/me" className="shrink-0 text-sm font-extrabold tracking-tight" aria-label="MSOC home">
-          <span className="text-blue-600">M</span>
-          <span className="text-red-600">SOC</span>
+        <Link href="/me" className="shrink-0 text-sm font-extrabold tracking-tight text-foreground">
+          Club<span className="text-accent">Points</span>
         </Link>
         <div className="no-scrollbar flex gap-1 overflow-x-auto whitespace-nowrap rounded-full border border-border/80 bg-white/55 p-1 text-sm font-semibold shadow-inner">
           {links.map((link) => {
