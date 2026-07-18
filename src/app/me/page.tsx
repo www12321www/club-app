@@ -52,9 +52,9 @@ export default function MePage() {
     <div className="page-stack">
       <div className="flex items-start justify-between gap-4">
         <div className="page-header">
-          <p className="eyebrow">Member pass</p>
+          <p className="eyebrow">Kent MSoc pass</p>
           <h1 className="page-title">Hi, {member.name.split(" ")[0]}</h1>
-          <p className="page-subtitle">Show your QR code at events to earn points and validate your membership.</p>
+          <p className="page-subtitle">Show your QR code at Malaysia Society socials, cultural nights, and Canterbury meetups to earn points and validate membership.</p>
         </div>
         <Link
           href="/settings"
@@ -107,7 +107,7 @@ export default function MePage() {
           onClick={() => setShowAllHistory(!showAllHistory)}
           className="mb-3 flex w-full items-center justify-between"
         >
-          <h2 className="text-lg font-bold">Points History</h2>
+          <h2 className="text-lg font-bold">MSoc Points History</h2>
           <span
             className={`text-foreground/40 transition-transform ${
               showAllHistory ? "rotate-90" : ""

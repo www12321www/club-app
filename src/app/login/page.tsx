@@ -46,11 +46,11 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center gap-6">
       <div className="page-header text-center">
-        <p className="eyebrow">Welcome back</p>
+        <p className="eyebrow">Kent Malaysia Society</p>
         <h1 className="page-title">
-          {mode === "signin" ? "Sign in" : "Create your account"}
+          {mode === "signin" ? "Sign in" : "Join Malaysia Society"}
         </h1>
-        <p className="page-subtitle">Track points, claim tickets, unlock achievements, and redeem club rewards.</p>
+        <p className="page-subtitle">Access your University of Kent at Canterbury Malaysia Society member pass, events, socials, and rewards.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="surface-card flex flex-col gap-3 p-5 sm:p-6">
@@ -65,7 +65,7 @@ export default function LoginPage() {
             />
             <input
               required
-              placeholder="Kent ID"
+              placeholder="Kent student ID"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
               className="form-input"

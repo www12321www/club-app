@@ -4,17 +4,17 @@ import RegisterServiceWorker from "./register-sw";
 import NavBar from "@/components/nav-bar";
 
 export const metadata: Metadata = {
-  title: "Club Membership Points",
-  description: "Scan to earn points, unlock achievements, redeem rewards",
+  title: "Kent Malaysia Society Membership",
+  description: "University of Kent Canterbury Malaysia Society membership, events, rewards, and community check-ins",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Club Points",
+    title: "MSoc",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#d97757",
+  themeColor: "#cc0001",
 };
 
 export default function RootLayout({

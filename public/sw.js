@@ -1,4 +1,4 @@
-const CACHE_NAME = "club-app-v1";
+const CACHE_NAME = "msoc-app-v1";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

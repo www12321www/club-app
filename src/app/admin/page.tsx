@@ -23,15 +23,15 @@ export default function AdminPage() {
   return (
     <div className="page-stack">
       <div className="page-header">
-        <p className="eyebrow">Club hub</p>
+        <p className="eyebrow">Kent MSoc admin</p>
         <h1 className="page-title">Admin</h1>
-        <p className="page-subtitle">Manage the club experience from one clear control panel.</p>
+        <p className="page-subtitle">Manage Malaysia Society memberships, Canterbury events, payments, rewards, and committee operations.</p>
       </div>
       <Link
         href="/admin/events"
         className="soft-card flex items-center justify-between px-5 py-4 font-bold transition hover:-translate-y-0.5 hover:border-accent/70 hover:shadow-lg"
       >
-        Manage Events
+        Manage MSoc Events
         <span className="text-foreground/40">&rarr;</span>
       </Link>
       <Link
@@ -59,7 +59,7 @@ export default function AdminPage() {
         href="/admin/members"
         className="soft-card flex items-center justify-between px-5 py-4 font-bold transition hover:-translate-y-0.5 hover:border-accent/70 hover:shadow-lg"
       >
-        Manage Members
+        Manage Society Members
         <span className="text-foreground/40">&rarr;</span>
       </Link>
     </div>

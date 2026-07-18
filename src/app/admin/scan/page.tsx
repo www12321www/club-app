@@ -395,7 +395,7 @@ export default function ScanPage() {
               required
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Attended club event"
+              placeholder="e.g. Attended Malaysia Night"
               className="mt-1 w-full border border-border rounded-xl px-3 py-2 bg-background"
             />
           </label>

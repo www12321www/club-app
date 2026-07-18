@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useMember } from "@/lib/use-member";
 import type { ClubEvent, PaymentStatus } from "@/lib/types";
 
-// TODO: replace with the club's real bank details
+// TODO: replace with the Malaysia Society's real bank details
 const PAYMENT_ACCOUNT = {
   name: "Account Name",
   sortCode: "12-34-56",
@@ -268,8 +268,14 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Events</h1>
+    <div className="page-stack">
+      <div className="page-header">
+        <p className="eyebrow">Canterbury socials</p>
+        <h1 className="page-title">Malaysia Society Events</h1>
+        <p className="page-subtitle">
+          Claim tickets for Kent MSoc meetups, cultural nights, and member-only gatherings.
+        </p>
+      </div>
       <ul className="flex flex-col gap-2">
         {events.map((e) => {
           const status = myTickets[e.id]?.status;
