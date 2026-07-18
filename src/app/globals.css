@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf6ef;
-  --foreground: #2b2824;
-  --accent: #d4714a;
-  --primary: #1d9e75;
-  --border: #e8e4de;
+  --background: #f7f9ff;
+  --foreground: #151b2d;
+  --accent: #cc0001;
+  --primary: #010066;
+  --border: #dce3f3;
+  --msoc-blue: #010066;
+  --msoc-red: #cc0001;
+  --msoc-gold: #ffcc00;
 }
 
 @theme inline {
@@ -14,14 +17,18 @@
   --color-accent: var(--accent);
   --color-primary: var(--primary);
   --color-border: var(--border);
+  --color-msoc-blue: var(--msoc-blue);
+  --color-msoc-red: var(--msoc-red);
+  --color-msoc-gold: var(--msoc-gold);
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 }
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(212, 113, 74, 0.16), transparent 30rem),
-    linear-gradient(180deg, #fffaf4 0%, var(--background) 45%, #f4eee7 100%);
+    radial-gradient(circle at top left, rgba(1, 0, 102, 0.18), transparent 28rem),
+    radial-gradient(circle at top right, rgba(204, 0, 1, 0.14), transparent 24rem),
+    linear-gradient(180deg, #ffffff 0%, var(--background) 45%, #eef3ff 100%);
   color: var(--foreground);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }

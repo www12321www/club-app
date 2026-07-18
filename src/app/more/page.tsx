@@ -22,9 +22,9 @@ export default function MorePage() {
   return (
     <div className="page-stack">
       <div className="page-header">
-        <p className="eyebrow">Club hub</p>
+        <p className="eyebrow">Malaysia Society hub</p>
         <h1 className="page-title">More</h1>
-        <p className="page-subtitle">Explore rewards, achievements, and extra tools for your club account.</p>
+        <p className="page-subtitle">Explore society rewards, achievements, and tools for your Kent MSoc membership.</p>
       </div>
       <Link
         href="/rewards"
